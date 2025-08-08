@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Enchant Price Calculator</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+    .container { max-width: 600px; background: white; padding: 20px; border-radius: 8px; }
+    .enchant-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    select { padding: 6px; }
+    .level-select { width: 80px; }
+    button { padding: 8px; margin-top: 10px; width: 100%; }
+    h2 { text-align: center; }
+    .add-btn, .remove-btn { cursor: pointer; font-size: 20px; padding: 0 10px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>Enchant Price Calculator</h2>
+
+  <div id="enchantments-container">
+    <div class="enchant-row">
+      <select class="enchant" onchange="toggleLevel(this)"></select>
+      <select class="level-select"></select>
+      <span class="add-btn" onclick="addEnchantRow()">＋</span>
+    </div>
+  </div>
+
+  <button onclick="calculatePrice()">Calculate Price</button>
+  <h3>Total Price: <span id="result">0</span> Emeralds</h3>
+</div>
+
+<script>
+const enchantments = [
+  "Aqua Affinity", "Bane of Arthropods", "Blast Protection", "Breach", "Channeling",
+  "Curse of Binding", "Curse of Vanishing", "Density", "Depth Strider", "Efficiency",
+  "Feather Falling", "Fire Aspect", "Fire Protection", "Flame", "Fortune", "Frost Walker",
+  "Impaling", "Infinity", "Knockback", "Looting", "Loyalty", "Luck of the Sea", "Lure",
+  "Mending", "Multishot", "Piercing", "Power", "Projectile Protection", "Protection", "Punch",
+  "Respiration", "Quick Charge", "Riptide", "Sharpness", "Silk Touch", "Smite", "Soul Speed",
+  "Sweeping Edge", "Swift Sneak", "Thorns", "Unbreaking", "Wind Burst"
+];
+
+const special200 = ["Mending", "Infinity"];
+const special150 = ["Flame", "Silk Touch", "Aqua Affinity", "Channeling", "Curse of Binding", "Curse of Vanishing", "Multishot"];
+
+function populateSelect(select) {
+  enchantments.forEach(e => {
+    let option = document.createElement("option");
+    option.value = e;
+    option.textContent = e;
+    select.appendChild(option);
+  });
+}
+
+function populateLevels(select) {
+  for (let i = 1; i <= 5; i++) {
+    let option = document.createElement("option");
+    option.value = i;
+    option.textContent = i;
+    select.appendChild(option);
+  }
+}
+
+function toggleLevel(selectElement) {
+  const enchant = selectElement.value;
+  const levelSelect = selectElement.parentElement.querySelector(".level-select");
+  if (special200.includes(enchant) || special150.includes(enchant)) {
+    levelSelect.disabled = true;
+    levelSelect.value = 0; // no level
+  } else {
+    levelSelect.disabled = false;
+    if (levelSelect.value == 0) levelSelect.value = 1;
+  }
+}
+
+function addEnchantRow() {
+  const container = document.getElementById("enchantments-container");
+  const row = document.createElement("div");
+  row.className = "enchant-row";
+
+  const enchantSelect = document.createElement("select");
+  enchantSelect.className = "enchant";
+  enchantSelect.onchange = function() { toggleLevel(enchantSelect); };
+  populateSelect(enchantSelect);
+
+  const levelSelect = document.createElement("select");
+  levelSelect.className = "level-select";
+  populateLevels(levelSelect);
+
+  const addBtn = document.createElement("span");
+  addBtn.className = "add-btn";
+  addBtn.textContent = "＋";
+  addBtn.onclick = addEnchantRow;
+
+  const removeBtn = document.createElement("span");
+  removeBtn.className = "remove-btn";
+  removeBtn.textContent = "－";
+  removeBtn.onclick = function() { row.remove(); };
+
+  row.appendChild(enchantSelect);
+  row.appendChild(levelSelect);
+  row.appendChild(addBtn);
+  row.appendChild(removeBtn);
+  container.appendChild(row);
+
+  toggleLevel(enchantSelect);
+}
+
+function getBasePrice(enchant) {
+  if (special200.includes(enchant)) return 200;
+  if (special150.includes(enchant)) return 150;
+  return 30;
+}
+
+function calculatePrice() {
+  let baseTotal = 0;
+  let levelTotal = 0;
+  document.querySelectorAll(".enchant-row").forEach(row => {
+    const enchant = row.querySelector(".enchant").value;
+    const level = parseInt(row.querySelector(".level-select").value) || 0;
+    baseTotal += getBasePrice(enchant);
+    levelTotal += level;
+  });
+  let total = baseTotal + (levelTotal * 50);
+  document.getElementById("result").textContent = total;
+}
+
+// Initialize first row
+populateSelect(document.querySelector(".enchant"));
+populateLevels(document.querySelector(".level-select"));
+toggleLevel(document.querySelector(".enchant"));
+</script>
+</body>
+</html>
