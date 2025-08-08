@@ -113,20 +113,24 @@ function getBasePrice(enchant) {
 }
 
 function calculatePrice() {
-  let baseTotal = 0;
-  let levelTotal = 0;
+  let total = 0;
   document.querySelectorAll(".enchant-row").forEach(row => {
     const enchant = row.querySelector(".enchant").value;
     const level = parseInt(row.querySelector(".level-select").value) || 0;
-    baseTotal += getBasePrice(enchant);
-    if (!(special200.includes(enchant) || special150.includes(enchant)) && level > 1) {
-      levelTotal += (level - 1);
+    const basePrice = getBasePrice(enchant);
+
+    if (special200.includes(enchant) || special150.includes(enchant)) {
+      total += basePrice; // sách đặc biệt: bỏ qua level
+    } else {
+      if (level <= 1) {
+        total += basePrice; // level 1: chỉ tính giá dòng enchant
+      } else {
+        total += basePrice + (level * 50); // level >= 2: cộng giá tất cả level
+      }
     }
   });
-  let total = baseTotal + (levelTotal * 50);
   document.getElementById("result").textContent = total;
 }
-
 // Initialize first row
 populateSelect(document.querySelector(".enchant"));
 populateLevels(document.querySelector(".level-select"));
