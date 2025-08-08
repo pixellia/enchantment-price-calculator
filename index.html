@@ -119,7 +119,9 @@ function calculatePrice() {
     const enchant = row.querySelector(".enchant").value;
     const level = parseInt(row.querySelector(".level-select").value) || 0;
     baseTotal += getBasePrice(enchant);
-    levelTotal += level;
+    if (!(special200.includes(enchant) || special150.includes(enchant)) && level > 1) {
+      levelTotal += (level - 1);
+    }
   });
   let total = baseTotal + (levelTotal * 50);
   document.getElementById("result").textContent = total;
